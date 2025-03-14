@@ -1,0 +1,40 @@
+{
+  "name": "jobjedi-extension",
+  "version": "1.0.0",
+  "description": "JobJedi Chrome Extension for job application assistant",
+  "main": "dist/popup.js",
+  "scripts": {
+    "build": "NODE_ENV=production webpack --config webpack.config.js",
+    "build:dev": "webpack --config webpack.config.js",
+    "watch": "webpack --config webpack.config.js --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "job",
+    "application",
+    "assistant",
+    "AI",
+    "chrome",
+    "extension"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/chrome": "^0.0.246",
+    "@types/react": "^18.2.15",
+    "@types/react-dom": "^18.2.7",
+    "copy-webpack-plugin": "^11.0.0",
+    "css-loader": "^6.8.1",
+    "html-webpack-plugin": "^5.5.3",
+    "style-loader": "^3.3.3",
+    "ts-loader": "^9.4.4",
+    "typescript": "^5.1.6",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "axios": "^1.4.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}
