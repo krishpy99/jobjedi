@@ -1,0 +1,60 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "JobJedi backend for job application assistant",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "node dist/index.js",
+    "dev": "nodemon --exec ts-node src/index.ts",
+    "build": "tsc",
+    "dbmigrate": "node scripts/dbmigrate.js",
+    "db:init": "node scripts/dbmigrate.js init",
+    "db:create": "node scripts/dbmigrate.js create",
+    "db:generate": "node scripts/dbmigrate.js generate",
+    "db:run": "node scripts/dbmigrate.js run",
+    "db:revert": "node scripts/dbmigrate.js revert",
+    "db:show": "node scripts/dbmigrate.js show",
+    "typeorm:migration:run": "ts-node scripts/typeorm-migration.ts",
+    "typeorm:migration:generate": "typeorm-ts-node-commonjs migration:generate -d src/db/data-source.ts",
+    "typeorm:migration:create": "typeorm-ts-node-commonjs migration:create",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "job",
+    "application",
+    "assistant",
+    "AI"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@google-cloud/local-auth": "^2.1.1",
+    "@pinecone-database/pinecone": "^5.1.1",
+    "@types/pg": "^8.11.11",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "google-auth-library": "^9.0.0",
+    "googleapis": "^126.0.1",
+    "mongoose": "^7.5.0",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
+    "openai": "^4.14.2",
+    "pg": "^8.14.0",
+    "pinecone-client": "^1.1.0",
+    "reflect-metadata": "^0.2.2",
+    "typeorm": "^0.3.21",
+    "winston": "^3.10.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.13",
+    "@types/express": "^4.17.17",
+    "@types/morgan": "^1.9.9",
+    "@types/multer": "^1.4.7",
+    "@types/node": "^20.5.0",
+    "nodemon": "^3.0.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.6"
+  }
+}
