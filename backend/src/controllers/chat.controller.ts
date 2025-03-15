@@ -11,7 +11,7 @@ export const askQuestion = async (req: Request, res: Response) => {
     }
 
     // Find similar job descriptions in Pinecone using text directly
-    const matches = await pineconeService.queryWithText(question, 5);
+    const matches = await pineconeService.queryWithText(userEmail, question, 5);
 
     // Filter for matches that belong to this user
     const userMatches = matches.filter((match: any) => {

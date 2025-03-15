@@ -17,9 +17,6 @@ export class Job {
   @Column("text")
   jobDescription!: string;
 
-  @Column({ nullable: true })
-  pineconeId?: string;
-
   @CreateDateColumn()
   createdAt!: Date;
 

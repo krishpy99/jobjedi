@@ -11,9 +11,6 @@ export const addJob = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    // Create a unique ID for Pinecone by combining userEmail and jobUrl
-    const pineconeId = `${userEmail}|||${jobUrl}`;
-
     // Create job in PostgreSQL with Pinecone ID
     const job = await JobModel.createJob({
       userEmail,
@@ -21,7 +18,6 @@ export const addJob = async (req: Request, res: Response) => {
       position,
       jobDescription,
       jobUrl,
-      pineconeId,
       createdAt: new Date(),
       updatedAt: new Date()
     });
@@ -29,14 +25,12 @@ export const addJob = async (req: Request, res: Response) => {
     console.log('Job created:', job);
 
     // Store job in Pinecone with integrated embedding
-    await pineconeService.storeJobWithEmbedding(pineconeId, jobDescription, {
+    await pineconeService.storeJobWithEmbedding(userEmail, jobUrl, jobDescription, {
       companyName,
       position,
       jobUrl,
       userEmail
     });
-
-    console.log('Pinecone ID:', pineconeId);
 
     res.status(201).json({
       success: true,
@@ -116,11 +110,8 @@ export const deleteJob = async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Job not found' });
     }
 
-    // Create a unique ID for Pinecone by combining userEmail and jobUrl
-    const pineconeId = `${userEmail}|||${jobUrl}`;
-
     // Delete embeddings from Pinecone
-    await pineconeService.deleteEmbedding(pineconeId);
+    await pineconeService.deleteEmbedding(userEmail, jobUrl);
 
     res.json({
       success: true,
@@ -164,7 +155,7 @@ export const semanticSearch = async (req: Request, res: Response) => {
     }
 
     // Search similar job descriptions using Pinecone with text directly
-    const matches = await pineconeService.queryWithText(query);
+    const matches = await pineconeService.queryWithText(userEmail, query);
 
     // Filter for matches that belong to this user
     const userMatches = matches.filter((match: any) => {

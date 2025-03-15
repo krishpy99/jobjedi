@@ -9,7 +9,6 @@ export interface IJob {
   position: string;
   jobDescription: string;
   jobUrl: string;
-  pineconeId?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
