@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import JobModel from '../models/job.model';
-import openAIService from '../services/openai.service';
 import pineconeService from '../services/pinecone.service';
 
 export const addJob = async (req: Request, res: Response) => {
@@ -12,31 +11,32 @@ export const addJob = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    // Generate embeddings for the job description
-    const embeddings = await openAIService.generateEmbedding(jobDescription);
+    // Create a unique ID for Pinecone by combining userEmail and jobUrl
+    const pineconeId = `${userEmail}|||${jobUrl}`;
 
-    // Create job in PostgreSQL
+    // Create job in PostgreSQL with Pinecone ID
     const job = await JobModel.createJob({
       userEmail,
       companyName,
       position,
       jobDescription,
       jobUrl,
-      embeddings,
+      pineconeId,
       createdAt: new Date(),
       updatedAt: new Date()
     });
 
-    // Create a unique ID for Pinecone by combining userEmail and jobUrl
-    const pineconeId = `${userEmail}|||${jobUrl}`;
+    console.log('Job created:', job);
 
-    // Store embeddings in Pinecone
-    await pineconeService.storeEmbedding(pineconeId, embeddings, {
+    // Store job in Pinecone with integrated embedding
+    await pineconeService.storeJobWithEmbedding(pineconeId, jobDescription, {
       companyName,
       position,
       jobUrl,
       userEmail
     });
+
+    console.log('Pinecone ID:', pineconeId);
 
     res.status(201).json({
       success: true,
@@ -163,11 +163,8 @@ export const semanticSearch = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Query and user email are required in the request body' });
     }
 
-    // Generate embeddings for the query
-    const queryEmbedding = await openAIService.generateEmbedding(query);
-
-    // Search similar job descriptions using Pinecone
-    const matches = await pineconeService.querySimilar(queryEmbedding);
+    // Search similar job descriptions using Pinecone with text directly
+    const matches = await pineconeService.queryWithText(query);
 
     // Filter for matches that belong to this user
     const userMatches = matches.filter((match: any) => {

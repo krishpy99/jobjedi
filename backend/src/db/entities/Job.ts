@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryColumn, CreateDateColumn, UpdateDateColumn, Index } from "typeorm";
+import { Entity, Column, PrimaryColumn, CreateDateColumn, UpdateDateColumn } from "typeorm";
 
 @Entity("jobs")
 export class Job {
@@ -17,16 +17,12 @@ export class Job {
   @Column("text")
   jobDescription!: string;
 
-  @Column("jsonb", { nullable: true })
-  embeddings?: any;
+  @Column({ nullable: true })
+  pineconeId?: string;
 
   @CreateDateColumn()
   createdAt!: Date;
 
   @UpdateDateColumn()
   updatedAt!: Date;
-
-  // Add a full-text search index
-  @Index("idx_jobs_search", { synchronize: false })
-  searchVector?: string;
 } 

@@ -1,20 +1,29 @@
 import "reflect-metadata";
 import { AppDataSource } from './data-source';
 
-// Function to initialize the database and run migrations
+// Function to initialize the database
 export async function initializeDatabase(): Promise<void> {
   try {
     console.log('Starting database initialization with TypeORM...');
     
-    // Initialize the data source
+    // Initialize the data source if not already initialized
     if (!AppDataSource.isInitialized) {
       await AppDataSource.initialize();
       console.log('TypeORM Data Source has been initialized');
+      
+      // Run pending migrations
+      console.log('Running pending migrations...');
+      const pendingMigrations = await AppDataSource.showMigrations();
+      
+      if (pendingMigrations) {
+        // There are pending migrations
+        console.log('Found pending migrations, applying now...');
+        const migrations = await AppDataSource.runMigrations();
+        console.log(`Successfully ran ${migrations.length} migrations`);
+      } else {
+        console.log('No pending migrations found');
+      }
     }
-    
-    // Run migrations if needed
-    await AppDataSource.runMigrations();
-    console.log('Database migrations completed successfully');
     
     console.log('Database initialization completed successfully');
   } catch (error: unknown) {

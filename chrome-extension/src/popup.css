@@ -148,4 +148,35 @@ body {
 
 .webapp-link a:hover {
   text-decoration: underline;
+}
+
+.email-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.email-form h2 {
+  margin: 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.email-form p {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.email-input {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  width: 100%;
+  margin-bottom: 8px;
 } 

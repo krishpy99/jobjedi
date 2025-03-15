@@ -1,25 +1,26 @@
 import { MigrationInterface, QueryRunner, Table, TableIndex } from "typeorm";
 
-export class CreateJobsTable1710000000000 implements MigrationInterface {
+export class InitialMigration1710000000000 implements MigrationInterface {
     public async up(queryRunner: QueryRunner): Promise<void> {
+        // Create the jobs table
         await queryRunner.createTable(
             new Table({
                 name: "jobs",
                 columns: [
                     {
-                        name: "user_email",
+                        name: "userEmail",
                         type: "varchar",
                         isPrimary: true,
                         isNullable: false,
                     },
                     {
-                        name: "job_url",
+                        name: "jobUrl",
                         type: "varchar",
                         isPrimary: true,
                         isNullable: false,
                     },
                     {
-                        name: "company_name",
+                        name: "companyName",
                         type: "varchar",
                         isNullable: false,
                     },
@@ -29,53 +30,47 @@ export class CreateJobsTable1710000000000 implements MigrationInterface {
                         isNullable: false,
                     },
                     {
-                        name: "job_description",
+                        name: "jobDescription",
                         type: "text",
                         isNullable: false,
                     },
                     {
-                        name: "embeddings",
-                        type: "jsonb",
+                        name: "pineconeId",
+                        type: "varchar",
                         isNullable: true,
                     },
                     {
-                        name: "created_at",
+                        name: "createdAt",
                         type: "timestamp",
                         default: "now()",
+                        isNullable: false,
                     },
                     {
-                        name: "updated_at",
+                        name: "updatedAt",
                         type: "timestamp",
                         default: "now()",
+                        isNullable: false,
                     },
                 ],
             }),
             true
         );
 
-        // Create a full-text search index
-        await queryRunner.query(`
-            ALTER TABLE jobs ADD COLUMN ts_search_vector tsvector 
-            GENERATED ALWAYS AS (
-                setweight(to_tsvector('english', coalesce(company_name, '')), 'A') ||
-                setweight(to_tsvector('english', coalesce(position, '')), 'B') ||
-                setweight(to_tsvector('english', coalesce(job_description, '')), 'C')
-            ) STORED;
-        `);
-
+        // Create an index on userEmail for faster user-specific queries
         await queryRunner.createIndex(
             "jobs",
             new TableIndex({
-                name: "idx_jobs_search",
-                columnNames: ["ts_search_vector"],
-                isUnique: false,
-                isFulltext: true,
+                name: "IDX_JOBS_USER_EMAIL",
+                columnNames: ["userEmail"],
             })
         );
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.dropIndex("jobs", "idx_jobs_search");
+        // Drop the index first
+        await queryRunner.dropIndex("jobs", "IDX_JOBS_USER_EMAIL");
+        
+        // Drop the table
         await queryRunner.dropTable("jobs");
     }
 } 

@@ -5,7 +5,7 @@ import path from "path";
 // Load environment variables
 dotenv.config();
 
-// Define the AppDataSource
+// Define the data source for CLI usage
 const dataSource = new DataSource({
   type: "postgres",
   host: process.env.DB_HOST || "localhost",
@@ -13,16 +13,13 @@ const dataSource = new DataSource({
   username: process.env.DB_USER || "postgres",
   password: process.env.DB_PASSWORD || "postgres",
   database: process.env.DB_NAME || "jobjedi",
-  synchronize: false, // Disabled to prevent automatic schema changes
+  synchronize: false,
   logging: process.env.NODE_ENV === "development",
-  entities: [path.join(__dirname, "entities", "*.{ts,js}")],
-  migrations: [path.join(__dirname, "migrations", "*.{ts,js}")],
+  entities: [path.join(__dirname, "src/db/entities", "*.{ts,js}")],
+  migrations: [path.join(__dirname, "src/db/migrations", "*.{ts,js}")],
   migrationsTableName: "migrations_typeorm",
   ssl: process.env.DB_SSL === "true"
 });
 
 // Export as default for CLI usage
-export default dataSource;
-
-// Re-export as AppDataSource for backward compatibility in the application
-export const AppDataSource = dataSource; 
+export default dataSource; 

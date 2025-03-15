@@ -21,9 +21,9 @@ interface GoogleTokens {
 }
 
 // Get all jobs
-export const getAllJobs = async () => {
+export const getAllJobs = async (userEmail: string) => {
   try {
-    const response = await api.get('/jobs');
+    const response = await api.get(`/jobs?userEmail=${encodeURIComponent(userEmail)}`);
     return response.data;
   } catch (error) {
     console.error('Error fetching jobs:', error);
@@ -32,9 +32,9 @@ export const getAllJobs = async () => {
 };
 
 // Get job by ID
-export const getJobById = async (jobId: string) => {
+export const getJobById = async (jobId: string, userEmail: string) => {
   try {
-    const response = await api.get(`/jobs/${jobId}`);
+    const response = await api.get(`/jobs/url/${jobId}?userEmail=${encodeURIComponent(userEmail)}`);
     return response.data;
   } catch (error) {
     console.error('Error fetching job:', error);
@@ -43,9 +43,9 @@ export const getJobById = async (jobId: string) => {
 };
 
 // Delete job
-export const deleteJob = async (jobId: string) => {
+export const deleteJob = async (jobId: string, userEmail: string) => {
   try {
-    const response = await api.delete(`/jobs/${jobId}`);
+    const response = await api.delete(`/jobs/url/${jobId}?userEmail=${encodeURIComponent(userEmail)}`);
     return response.data;
   } catch (error) {
     console.error('Error deleting job:', error);
@@ -54,9 +54,9 @@ export const deleteJob = async (jobId: string) => {
 };
 
 // Search jobs
-export const searchJobs = async (query: string) => {
+export const searchJobs = async (query: string, userEmail: string) => {
   try {
-    const response = await api.get(`/jobs/search/text?query=${encodeURIComponent(query)}`);
+    const response = await api.get(`/jobs/search/text?query=${encodeURIComponent(query)}&userEmail=${encodeURIComponent(userEmail)}`);
     return response.data;
   } catch (error) {
     console.error('Error searching jobs:', error);

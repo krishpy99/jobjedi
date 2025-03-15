@@ -14,9 +14,10 @@ interface Job {
 
 interface JobTableProps {
   jobs: Job[];
+  userEmail: string;
 }
 
-export default function JobTable({ jobs }: JobTableProps) {
+export default function JobTable({ jobs, userEmail }: JobTableProps) {
   const [jobList, setJobList] = useState<Job[]>(jobs);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -30,7 +31,7 @@ export default function JobTable({ jobs }: JobTableProps) {
     setError(null);
 
     try {
-      const response = await deleteJob(jobId);
+      const response = await deleteJob(jobId, userEmail);
       if (response.success) {
         setJobList(jobList.filter(job => job._id !== jobId));
       } else {

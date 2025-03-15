@@ -16,6 +16,7 @@ export const saveJob = async (jobData: {
   position: string;
   jobDescription: string;
   jobUrl: string;
+  userEmail: string;
 }) => {
   try {
     const response = await api.post('/jobs', jobData);

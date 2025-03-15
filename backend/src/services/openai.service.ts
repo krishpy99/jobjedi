@@ -5,7 +5,6 @@ dotenv.config();
 
 class OpenAIService {
   private openai: OpenAI;
-  private embeddingModel: string = 'text-embedding-3-small';
   private chatModel: string = 'gpt-4o-mini';
 
   constructor() {
@@ -13,21 +12,6 @@ class OpenAIService {
     this.openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
     });
-  }
-
-  // Generate embeddings for a text
-  async generateEmbedding(text: string): Promise<number[]> {
-    try {
-      const response = await this.openai.embeddings.create({
-        model: this.embeddingModel,
-        input: text,
-      });
-      
-      return response.data[0].embedding;
-    } catch (error) {
-      console.error('Error generating embeddings:', error);
-      throw error;
-    }
   }
 
   // Generate a cover letter based on job description and optional custom info

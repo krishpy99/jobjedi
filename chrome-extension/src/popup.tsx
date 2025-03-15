@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import './popup.css';
 import { extractJobInfo } from './utils/jobExtractor';
 import { saveJob, generateCoverLetter } from './services/api';
+import { getUserEmail, saveUserEmail, hasUserEmail } from './utils/storage';
 
 const Popup: React.FC = () => {
   const [activeTab, setActiveTab] = useState<chrome.tabs.Tab | null>(null);
@@ -10,6 +11,9 @@ const Popup: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [userEmail, setUserEmail] = useState<string>('');
+  const [showEmailForm, setShowEmailForm] = useState<boolean>(false);
+  const [emailInput, setEmailInput] = useState<string>('');
 
   useEffect(() => {
     // Get the active tab
@@ -18,7 +22,48 @@ const Popup: React.FC = () => {
         setActiveTab(tabs[0]);
       }
     });
+
+    // Check if user email exists
+    const checkUserEmail = async () => {
+      const email = await getUserEmail();
+      if (email) {
+        setUserEmail(email);
+      } else {
+        setShowEmailForm(true);
+      }
+    };
+
+    checkUserEmail();
   }, []);
+
+  const handleEmailSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!emailInput || !validateEmail(emailInput)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+
+    try {
+      await saveUserEmail(emailInput);
+      setUserEmail(emailInput);
+      setShowEmailForm(false);
+      setError(null);
+      setSuccess('Email saved successfully!');
+
+      // Clear success message after 3 seconds
+      setTimeout(() => {
+        setSuccess(null);
+      }, 3000);
+    } catch (err: any) {
+      setError(`Error saving email: ${err.message}`);
+    }
+  };
+
+  const validateEmail = (email: string): boolean => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  };
 
   const handleExtractJob = async () => {
     if (!activeTab || !activeTab.id) return;
@@ -49,6 +94,13 @@ const Popup: React.FC = () => {
   const handleSaveJob = async () => {
     if (!jobInfo) return;
 
+    // Check if user email exists
+    if (!userEmail) {
+      setShowEmailForm(true);
+      setError('Please enter your email before saving jobs');
+      return;
+    }
+
     setLoading(true);
     setError(null);
     setSuccess(null);
@@ -59,6 +111,7 @@ const Popup: React.FC = () => {
         position: jobInfo.position,
         jobDescription: jobInfo.description,
         jobUrl: activeTab?.url || '',
+        userEmail: userEmail
       });
 
       if (response.success) {
@@ -118,42 +171,54 @@ const Popup: React.FC = () => {
         
         {success && <div className="success">{success}</div>}
 
-        <div className="actions">
-          <button 
-            className="button primary" 
-            onClick={handleExtractJob}
-            disabled={loading || !activeTab}
-          >
-            Extract Job Info
-          </button>
+        {showEmailForm ? (
+          <div className="email-form">
+            <h2>Enter Your Email</h2>
+            <p>Please enter your email to save and manage jobs</p>
+            <form onSubmit={handleEmailSubmit}>
+              <input
+                type="email"
+                placeholder="your@email.com"
+                value={emailInput}
+                onChange={(e) => setEmailInput(e.target.value)}
+                required
+                className="email-input"
+              />
+              <button type="submit" className="button primary">
+                Save Email
+              </button>
+            </form>
+          </div>
+        ) : (
+          <div className="actions">
+            <button 
+              className="button primary" 
+              onClick={handleExtractJob}
+              disabled={loading || !activeTab}
+            >
+              Extract Job Info
+            </button>
 
-          {jobInfo && (
-            <div className="job-info">
-              <h2>Job Information</h2>
-              <p><strong>Company:</strong> {jobInfo.companyName}</p>
-              <p><strong>Position:</strong> {jobInfo.position}</p>
-              <p><strong>Description:</strong> {jobInfo.description.substring(0, 100)}...</p>
+            {jobInfo && (
+              <div className="job-info">
+                <h2>Job Information</h2>
+                <p><strong>Company:</strong> {jobInfo.companyName}</p>
+                <p><strong>Position:</strong> {jobInfo.position}</p>
+                <p><strong>Description:</strong> {jobInfo.description.substring(0, 100)}...</p>
 
-              <div className="button-group">
-                <button 
-                  className="button secondary" 
-                  onClick={handleSaveJob}
-                  disabled={loading}
-                >
-                  Save Job
-                </button>
-                
-                {/* <button 
-                  className="button secondary" 
-                  onClick={handleGenerateCoverLetter}
-                  disabled={loading || !jobInfo.id}
-                >
-                  Generate Cover Letter
-                </button> */}
+                <div className="button-group">
+                  <button 
+                    className="button secondary" 
+                    onClick={handleSaveJob}
+                    disabled={loading}
+                  >
+                    Save Job
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
 
         <div className="webapp-link">
           <a href="#" onClick={() => chrome.tabs.create({ url: 'http://localhost:3000' })}>

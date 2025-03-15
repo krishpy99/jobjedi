@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import JobModel, { IJob } from '../models/job.model';
-import openAIService from '../services/openai.service';
 import pineconeService from '../services/pinecone.service';
 
 export const askQuestion = async (req: Request, res: Response) => {
@@ -11,11 +10,8 @@ export const askQuestion = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Question and user email are required' });
     }
 
-    // Generate embedding for the question
-    const questionEmbedding = await openAIService.generateEmbedding(question);
-
-    // Find similar job descriptions in Pinecone
-    const matches = await pineconeService.querySimilar(questionEmbedding, 5);
+    // Find similar job descriptions in Pinecone using text directly
+    const matches = await pineconeService.queryWithText(question, 5);
 
     // Filter for matches that belong to this user
     const userMatches = matches.filter((match: any) => {
@@ -38,26 +34,21 @@ export const askQuestion = async (req: Request, res: Response) => {
       }
     }
 
-    // Get job descriptions
-    const jobDescriptions = jobs.map((job) => {
-      return `Job at ${job.companyName} for position ${job.position}:\n${job.jobDescription}`;
-    });
-
-    // Generate answer using OpenAI
-    const answer = await openAIService.answerJobQuestion(question, jobDescriptions);
-
     // Prepare job references (without full descriptions)
     const jobReferences = jobs.map((job) => ({
       userEmail: job.userEmail,
       companyName: job.companyName,
       position: job.position,
       jobUrl: job.jobUrl,
+      jobDescription: job.jobDescription.substring(0, 200) + "..." // Include a preview of the job description
     }));
 
+    // Instead of generating an answer with OpenAI, return relevant jobs
+    // Client can display the job details to the user as search results
     res.json({
       success: true,
       question,
-      answer,
+      message: "Here are the most relevant jobs based on your question:",
       relatedJobs: jobReferences,
     });
   } catch (error: any) {
