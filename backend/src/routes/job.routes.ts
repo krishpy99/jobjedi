@@ -1,24 +1,27 @@
 import express from 'express';
 import * as jobController from '../controllers/job.controller';
+import { authenticateToken } from '../middleware/auth.middleware';
 
 const router = express.Router();
 
-// GET all jobs (requires userEmail as query parameter)
-router.get('/', jobController.getAllJobs);
+// Protected routes (require authentication)
 
-// GET job by URL (requires userEmail as query parameter)
-router.get('/url/:jobUrl', jobController.getJobById);
+// GET all jobs (email now extracted from auth token)
+router.get('/', authenticateToken, jobController.getAllJobs);
+
+// GET job by URL (email now extracted from auth token)
+router.get('/:jobId', authenticateToken, jobController.getJobById);
 
 // POST add new job
-router.post('/', jobController.addJob);
+router.post('/', authenticateToken, jobController.addJob);
 
-// DELETE job by URL (requires userEmail as query parameter)
-router.delete('/url/:jobUrl', jobController.deleteJob);
+// DELETE job by URL (email now extracted from auth token)
+router.delete('/:jobId', authenticateToken, jobController.deleteJob);
 
-// GET search jobs by text (requires userEmail as query parameter)
-router.get('/search/text', jobController.searchJobs);
+// GET search jobs by text (email now extracted from auth token)
+router.get('/search/text', authenticateToken, jobController.searchJobs);
 
-// POST semantic search
+// POST semantic search (can be used without authentication)
 router.post('/search/semantic', jobController.semanticSearch);
 
 export default router; 

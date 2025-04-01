@@ -27,8 +27,8 @@ export const askQuestion = async (req: Request, res: Response) => {
 
     // Fetch jobs from PostgreSQL
     const jobs: IJob[] = [];
-    for (const jobUrl of jobUrls) {
-      const job = await JobModel.getJob(userEmail, jobUrl);
+    for (const jobId of jobUrls) {
+      const job = await JobModel.getJob(jobId);
       if (job) {
         jobs.push(job);
       }

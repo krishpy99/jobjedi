@@ -22,11 +22,10 @@ class JobModel {
   }
 
   // Get a job by userEmail and jobUrl
-  async getJob(userEmail: string, jobUrl: string): Promise<Job | null> {
+  async getJob(jobId: string): Promise<Job | null> {
     return this.jobRepository.findOne({
       where: {
-        userEmail,
-        jobUrl
+        id: jobId
       }
     });
   }
@@ -46,10 +45,9 @@ class JobModel {
   }
 
   // Delete a job
-  async deleteJob(userEmail: string, jobUrl: string): Promise<boolean> {
+  async deleteJob(jobId: string): Promise<boolean> {
     const result = await this.jobRepository.delete({
-      userEmail,
-      jobUrl
+      id: jobId
     });
     
     return result.affected ? result.affected > 0 : false;

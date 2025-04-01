@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { UserButton, SignInButton, useUser } from '@clerk/nextjs';
 
 interface NavLinkProps {
   href: string;
@@ -24,6 +25,8 @@ const NavLink = ({ href, children, className = '' }: NavLinkProps) => {
 };
 
 const Navigation = () => {
+  const { isSignedIn } = useUser();
+  
   return (
     <nav className="bg-white shadow-sm py-3 mb-6">
       <div className="container mx-auto px-4">
@@ -32,9 +35,22 @@ const Navigation = () => {
             <Link href="/" className="text-xl font-bold text-blue-600">JobJedi</Link>
           </div>
           
-          <div className="flex space-x-2">
-            <NavLink href="/">Jobs</NavLink>
-            <NavLink href="/resumes">Resumes</NavLink>
+          <div className="flex items-center space-x-4">
+            <div className="flex space-x-2">
+              <NavLink href="/">Jobs</NavLink>
+              <NavLink href="/resumes">Resumes</NavLink>
+            </div>
+            <div className="ml-4">
+              {isSignedIn ? (
+                <UserButton afterSignOutUrl="/" />
+              ) : (
+                <SignInButton mode="modal">
+                  <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
+                    Sign In
+                  </button>
+                </SignInButton>
+              )}
+            </div>
           </div>
         </div>
       </div>

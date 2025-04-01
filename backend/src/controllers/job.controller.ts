@@ -49,9 +49,8 @@ export const addJob = async (req: Request, res: Response) => {
 
 export const getAllJobs = async (req: Request, res: Response) => {
   try {
-    // Get user email from request (could be from auth middleware)
-    const userEmail = req.query.userEmail as string;
-    
+    const userEmail = req.user?.email;
+
     if (!userEmail) {
       return res.status(400).json({ error: 'User email is required' });
     }
@@ -72,14 +71,14 @@ export const getAllJobs = async (req: Request, res: Response) => {
 
 export const getJobById = async (req: Request, res: Response) => {
   try {
-    const userEmail = req.query.userEmail as string;
-    const jobUrl = req.params.jobUrl;
+    const userEmail = req.user?.email;
+    const jobId = req.params.jobId;
 
-    if (!userEmail || !jobUrl) {
-      return res.status(400).json({ error: 'User email and job URL are required' });
+    if (!userEmail || !jobId) {
+      return res.status(400).json({ error: 'User email and job ID are required' });
     }
 
-    const job = await JobModel.getJob(userEmail, jobUrl);
+    const job = await JobModel.getJob(jobId);
 
     if (!job) {
       return res.status(404).json({ error: 'Job not found' });
@@ -97,21 +96,21 @@ export const getJobById = async (req: Request, res: Response) => {
 
 export const deleteJob = async (req: Request, res: Response) => {
   try {
-    const userEmail = req.query.userEmail as string;
-    const jobUrl = req.params.jobUrl;
+    const userEmail = req.user?.email;
+    const jobId = req.params.jobId;
 
-    if (!userEmail || !jobUrl) {
-      return res.status(400).json({ error: 'User email and job URL are required' });
+    if (!userEmail || !jobId) {
+      return res.status(400).json({ error: 'User email and job ID are required' });
     }
 
-    const deleted = await JobModel.deleteJob(userEmail, jobUrl);
+    const deleted = await JobModel.deleteJob(jobId);
 
     if (!deleted) {
       return res.status(404).json({ error: 'Job not found' });
     }
 
     // Delete embeddings from Pinecone
-    await pineconeService.deleteEmbedding(userEmail, jobUrl);
+    await pineconeService.deleteEmbedding(userEmail, jobId);
 
     res.json({
       success: true,
@@ -126,7 +125,7 @@ export const deleteJob = async (req: Request, res: Response) => {
 export const searchJobs = async (req: Request, res: Response) => {
   try {
     const query = req.query.query as string;
-    const userEmail = req.query.userEmail as string;
+    const userEmail = req.user?.email;
 
     if (!query || !userEmail) {
       return res.status(400).json({ error: 'Query parameter and user email are required' });
@@ -148,13 +147,13 @@ export const searchJobs = async (req: Request, res: Response) => {
 
 export const semanticSearch = async (req: Request, res: Response) => {
   try {
-    const { query, userEmail } = req.body;
+    const query = req.body.query as string;
+    const userEmail = req.user?.email as string;
 
-    if (!query || !userEmail) {
-      return res.status(400).json({ error: 'Query and user email are required in the request body' });
+    if (!query) {
+      return res.status(400).json({ error: 'Query is required' });
     }
 
-    // Search similar job descriptions using Pinecone with text directly
     const matches = await pineconeService.queryWithText(userEmail, query) as Array<{id: string, metadata?: {userEmail?: string}, score?: number}>;
 
     // Filter for matches that belong to this user
@@ -171,8 +170,8 @@ export const semanticSearch = async (req: Request, res: Response) => {
 
     // Fetch jobs from PostgreSQL
     const jobs = [];
-    for (const jobUrl of jobUrls) {
-      const job = await JobModel.getJob(userEmail, jobUrl);
+    for (const jobId of jobUrls) {
+      const job = await JobModel.getJob(jobId);
       if (job) {
         jobs.push(job);
       }

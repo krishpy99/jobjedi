@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { deleteJob } from '@/services/api';
+import { useDeleteJob } from '@/services/api';
 
 interface Job {
   id: string;
@@ -14,13 +14,13 @@ interface Job {
 
 interface JobTableProps {
   jobs: Job[];
-  userEmail: string;
 }
 
-export default function JobTable({ jobs, userEmail }: JobTableProps) {
+export default function JobTable({ jobs }: JobTableProps) {
   const [jobList, setJobList] = useState<Job[]>(jobs);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const deleteJob = useDeleteJob();
 
   const handleDeleteJob = async (jobId: string) => {
     if (!confirm('Are you sure you want to delete this job?')) {
@@ -31,7 +31,7 @@ export default function JobTable({ jobs, userEmail }: JobTableProps) {
     setError(null);
 
     try {
-      const response = await deleteJob(jobId, userEmail);
+      const response = await deleteJob(jobId);
       if (response.success) {
         setJobList(jobList.filter(job => job.id !== jobId));
       } else {

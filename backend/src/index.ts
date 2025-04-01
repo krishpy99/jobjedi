@@ -9,6 +9,7 @@ import coverLetterRoutes from './routes/coverLetter.routes';
 import chatRoutes from './routes/chat.routes';
 import resumeRoutes from './routes/resume.routes';
 import { initializeDatabase } from './db/init';
+import { clerkAuth } from './middleware/auth.middleware';
 
 // Load environment variables
 dotenv.config();
@@ -22,6 +23,11 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
+
+// Apply Clerk auth middleware globally
+// This adds the auth property to the request but doesn't reject unauthenticated requests
+// Individual routes will use authenticateToken middleware for protected endpoints
+app.use(clerkAuth);
 
 // Initialize the database
 initializeDatabase()
