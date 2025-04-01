@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { deleteJob } from '@/services/api';
 
 interface Job {
-  _id: string;
+  id: string;
   companyName: string;
   position: string;
   jobUrl: string;
@@ -33,7 +33,7 @@ export default function JobTable({ jobs, userEmail }: JobTableProps) {
     try {
       const response = await deleteJob(jobId, userEmail);
       if (response.success) {
-        setJobList(jobList.filter(job => job._id !== jobId));
+        setJobList(jobList.filter(job => job.id !== jobId));
       } else {
         setError('Failed to delete job');
       }
@@ -75,7 +75,7 @@ export default function JobTable({ jobs, userEmail }: JobTableProps) {
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
           {jobList.map((job) => (
-            <tr key={job._id} className="hover:bg-gray-50">
+            <tr key={job.id} className="hover:bg-gray-50">
               <td className="px-6 py-4 whitespace-nowrap">
                 <div className="text-sm font-medium text-gray-900">{job.companyName}</div>
               </td>
@@ -97,13 +97,13 @@ export default function JobTable({ jobs, userEmail }: JobTableProps) {
                     View
                   </Link>
                   <Link 
-                    href={`/jobs/${job._id}`}
+                    href={`/jobs/${job.id}`}
                     className="text-green-600 hover:text-green-900"
                   >
                     Details
                   </Link>
                   <button
-                    onClick={() => handleDeleteJob(job._id)}
+                    onClick={() => handleDeleteJob(job.id)}
                     disabled={loading}
                     className="text-red-600 hover:text-red-900"
                   >

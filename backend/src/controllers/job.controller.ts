@@ -155,7 +155,7 @@ export const semanticSearch = async (req: Request, res: Response) => {
     }
 
     // Search similar job descriptions using Pinecone with text directly
-    const matches = await pineconeService.queryWithText(userEmail, query);
+    const matches = await pineconeService.queryWithText(userEmail, query) as Array<{id: string, metadata?: {userEmail?: string}, score?: number}>;
 
     // Filter for matches that belong to this user
     const userMatches = matches.filter((match: any) => {

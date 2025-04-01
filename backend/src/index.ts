@@ -7,6 +7,7 @@ import jobRoutes from './routes/job.routes';
 import authRoutes from './routes/auth.routes';
 import coverLetterRoutes from './routes/coverLetter.routes';
 import chatRoutes from './routes/chat.routes';
+import resumeRoutes from './routes/resume.routes';
 import { initializeDatabase } from './db/init';
 
 // Load environment variables
@@ -36,6 +37,7 @@ app.use('/api/jobs', jobRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/cover-letters', coverLetterRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/resumes', resumeRoutes);
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

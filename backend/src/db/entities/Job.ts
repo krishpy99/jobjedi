@@ -1,11 +1,14 @@
-import { Entity, Column, PrimaryColumn, CreateDateColumn, UpdateDateColumn } from "typeorm";
+import { Entity, Column, CreateDateColumn, UpdateDateColumn, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity("jobs")
 export class Job {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+  
+  @Column()
   userEmail!: string;
 
-  @PrimaryColumn()
+  @Column()
   jobUrl!: string;
 
   @Column()

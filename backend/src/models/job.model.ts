@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 
 // Legacy interface for backward compatibility
 export interface IJob {
+  id: string;
   userEmail: string;
   companyName: string;
   position: string;
